@@ -1,0 +1,5 @@
+# ignore build artifacts
+/target
+
+# ignore rusftfmt backup files
+**/*.rs.bk
