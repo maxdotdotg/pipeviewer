@@ -14,7 +14,7 @@ fn main() {
     let mut total_bytes = 0;
 
     // loop through the bytes read, not just the limit of `buffer`
-    loop{
+    loop {
         // make a buffer?
         let mut buffer = [0; CHUNK_SIZE];
 
@@ -35,7 +35,7 @@ fn main() {
     // printing total_bytes to stderr, again, IDK
     // using stderr to print additional info kinda bothers me? not sure....
 
-    // if dbg!(!silent) { 
+    // if dbg!(!silent) {
     if !silent {
         eprintln!("{}", total_bytes);
     }
