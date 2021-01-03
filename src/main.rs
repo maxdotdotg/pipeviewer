@@ -1,10 +1,10 @@
 use std::env;
-use std::io::{self, Read, Write};
+use std::io::{self, ErrorKind, Result, Read, Write};
 
 // make a const for the buffer size
 const CHUNK_SIZE: usize = 16 * 1024;
 
-fn main() {
+fn main() -> Result<()> {
     // check for env var PV_SILENT
     // if set, do not print progress
 
@@ -16,11 +16,13 @@ fn main() {
     // debug macro! it takes any expression!
     // dbg!(silent);
     let mut total_bytes = 0;
+    
+
+    // make a buffer?
+    let mut buffer = [0; CHUNK_SIZE];
 
     // loop through the bytes read, not just the limit of `buffer`
     loop {
-        // make a buffer?
-        let mut buffer = [0; CHUNK_SIZE];
 
         // `.read` take a fixed-size buffer and returns the number of bytes read on success
         // since this is variable assignment, use a semicolon
@@ -32,8 +34,15 @@ fn main() {
         //dbg!(total_bytes += num_read);
         total_bytes += num_read;
 
-        // print all the things, unmodified, to stdout
-        io::stdout().write_all(&buffer[..num_read]).unwrap();
+        // if writing to stdout throws an error, catch and print it
+        if let Err(e) = io::stdout().write_all(&buffer[..num_read]) {
+            // if the error is BrokenPipe, then catch and ignore it since it's 
+            // mostly expected
+            if e.kind() == ErrorKind::BrokenPipe {
+                break
+            }
+            return Err(e)
+        }
     }
 
     // printing total_bytes to stderr, again, IDK
@@ -43,4 +52,5 @@ fn main() {
     if !silent {
         eprintln!("{}", total_bytes);
     }
+    Ok(())
 }
