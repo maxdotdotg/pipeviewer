@@ -1,9 +1,16 @@
+use std::env;
 use std::io::{self, Read, Write};
 
 // make a const for the buffer size
 const CHUNK_SIZE: usize = 16 * 1024;
 
 fn main() {
+    // check for env var PV_SILENT
+    // if set to 1, to not print progress
+    let silent = env::var("PV_SILENT").unwrap_or(String::new()).len() > 0;
+
+    // debug macro! it takes any expression!
+    // dbg!(silent);
     let mut total_bytes = 0;
 
     // loop through the bytes read, not just the limit of `buffer`
@@ -18,6 +25,7 @@ fn main() {
             Ok(x) => x,
             Err(_) => break,
         };
+        //dbg!(total_bytes += num_read);
         total_bytes += num_read;
 
         // print all the things, unmodified, to stdout
@@ -25,5 +33,10 @@ fn main() {
     }
 
     // printing total_bytes to stderr, again, IDK
-    eprintln!("{}", total_bytes);
+    // using stderr to print additional info kinda bothers me? not sure....
+
+    // if dbg!(!silent) { 
+    if !silent {
+        eprintln!("{}", total_bytes);
+    }
 }
