@@ -6,8 +6,12 @@ const CHUNK_SIZE: usize = 16 * 1024;
 
 fn main() {
     // check for env var PV_SILENT
-    // if set to 1, to not print progress
-    let silent = env::var("PV_SILENT").unwrap_or(String::new()).len() > 0;
+    // if set, do not print progress
+
+    // this is a lot
+    // if PV_SILENT is not set/an error is thrown, create a default empty value? IDK
+    // check if the value is empty, and return the corresponding bool
+    let silent = !env::var("PV_SILENT").unwrap_or_default().is_empty();
 
     // debug macro! it takes any expression!
     // dbg!(silent);
