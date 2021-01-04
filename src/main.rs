@@ -1,3 +1,4 @@
+use clap::{App, Arg};
 use std::env;
 use std::io::{self, ErrorKind, Read, Result, Write};
 
@@ -5,16 +6,31 @@ use std::io::{self, ErrorKind, Read, Result, Write};
 const CHUNK_SIZE: usize = 16 * 1024;
 
 fn main() -> Result<()> {
-    // check for env var PV_SILENT
-    // if set, do not print progress
+    // use clap to read from the CLI
+    let matches = App::new("pipeviewer")
+        .arg(Arg::with_name("infile").help("Read from a file instead of stdin"))
+        .arg(
+            Arg::with_name("outfile")
+                .short("o")
+                .long("outfile")
+                .takes_value(true)
+                .help("Write output to a file instead of stdout"),
+        )
+        .arg(Arg::with_name("silent").short("s").long("silent"))
+        .get_matches();
 
-    // this is a lot
-    // if PV_SILENT is not set/an error is thrown, create a default empty value? IDK
-    // check if the value is empty, and return the corresponding bool
-    let silent = !env::var("PV_SILENT").unwrap_or_default().is_empty();
+    // make the args from the CLI into regular vars
+    // using `unwrap_or_default` to get the value OR an empty string
+    let _infile = matches.value_of("infile").unwrap_or_default();
+    let _outfile = matches.value_of("outfile").unwrap_or_default();
+    let silent = if matches.is_present("silent") {
+        true
+    } else {
+        // check for env var PV_SILENT
+        // if set, do not print progress
+        !env::var("PV_SILENT").unwrap_or_default().is_empty()
+    };
 
-    // debug macro! it takes any expression!
-    // dbg!(silent);
     let mut total_bytes = 0;
 
     // make a buffer?
@@ -29,7 +45,6 @@ fn main() -> Result<()> {
             Ok(x) => x,
             Err(_) => break,
         };
-        //dbg!(total_bytes += num_read);
         total_bytes += num_read;
 
         // print total bytes as part of each loop,
